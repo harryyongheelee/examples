@@ -94,7 +94,7 @@ def train(model, device, train_loader, optimizer, epoch, start_epoch):
     # Logging loss metrics to Vessl
     vessl.log(
         step=epoch + start_epoch + 1,
-        row={'loss': loss.item()}
+        payload={'loss': loss.item()}
     )
 
 
@@ -138,11 +138,11 @@ def save(model, path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--input-path', type=str, default='/input',
+    parser.add_argument('--input-path', type=str, default='./input',
                         help='input dataset path')
-    parser.add_argument('--output-path', type=str, default='/output',
+    parser.add_argument('--output-path', type=str, default='./out',
                         help='output files path')
-    parser.add_argument('--checkpoint-path', type=str, default='/output/checkpoint',
+    parser.add_argument('--checkpoint-path', type=str, default='./out/checkpoint',
                         help='checkpoint path')
     parser.add_argument('--save-model', action='store_true', default=False,
                         help='For saving the current model')
@@ -150,7 +150,10 @@ if __name__ == '__main__':
                         help='For saving the images')
     args = parser.parse_args()
 
-    epochs = int(os.environ.get('epochs', 10))
+    ### Initialize Vessl ###
+    vessl.init(message="examples/mnist/pytorch")
+
+    epochs = int(os.environ.get('epochs', 3))
     batch_size = int(os.environ.get('batch_size', 128))
     optimizer = str(os.environ.get('optimizer', 'adam'))
     learning_rate = float(os.environ.get('learning_rate', 0.01))
@@ -217,3 +220,6 @@ if __name__ == '__main__':
 
     if args.save_model:
         save(model, args.output_path)
+
+    ### Upload outputs ###
+    vessl.upload(args.output_path)
